@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-app-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: todo-app
+  template:
+    metadata:
+      labels:
+        app: todo-app
+    spec:
+      containers:
+      - name: todo-app
+        image: 702551696126.dkr.ecr.eu-central-1.amazonaws.com/todo-list:latest  # Replace with your Docker image
+        ports:
+        - containerPort: 5000
+        env:
+          - name: DB_HOST
+            value: rds-cluster.cluster-cxzadf8nmshb.eu-central-1.rds.amazonaws.com  # Replace with your RDS endpoint
+          - name: DB_USER
+            value: root
+          - name: DB_PASSWORD
+            value: password
+          # - name: DB_USER
+          #   valueFrom:
+          #     secretKeyRef:
+          #       name: db-user
+          #       key: username
+          # - name: DB_PASSWORD
+          #   valueFrom:
+          #     secretKeyRef:
+          #       name: db-password
+          #       key: password
+          - name: DB_DATABASE
+            value: todo_db

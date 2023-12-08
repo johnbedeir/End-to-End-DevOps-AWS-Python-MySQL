@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-db-tables
+spec:
+  template:
+    spec:
+      containers:
+      - name: db-init
+        image: 702551696126.dkr.ecr.eu-central-1.amazonaws.com/todo-db:latest
+        env:
+          - name: DB_HOST
+            value: rds-cluster.cluster-cxzadf8nmshb.eu-central-1.rds.amazonaws.com
+          - name: DB_NAME
+            value: todo_db
+          - name: DB_USER
+            value: root
+          - name: DB_PASSWORD
+            value: password
+            # valueFrom:
+            #   secretKeyRef:
+            #     name: db-credentials
+            #     key: password
+      restartPolicy: Never
+  backoffLimit: 4

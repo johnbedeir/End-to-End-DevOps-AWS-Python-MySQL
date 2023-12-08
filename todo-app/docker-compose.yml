@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASS=password
+      - DB_DATABASE=todo_db
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  db:
+    image: mysql:5.7
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysql -h 'localhost' -u 'root' -p'password' -e 'SELECT 1'",
+        ]
+      timeout: 20s
+      retries: 10
+      interval: 10s
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: todo_db
+    networks:
+      - app-network
+    ports:
+      - 3306:3306
+volumes:
+  db-data:
+
+networks:
+  app-network:
