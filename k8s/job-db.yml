@@ -7,19 +7,24 @@ spec:
     spec:
       containers:
       - name: db-init
-        image: 702551696126.dkr.ecr.eu-central-1.amazonaws.com/todo-db:latest
+        image: 702551696126.dkr.ecr.eu-central-1.amazonaws.com/todo-db-img:latest # Replace with your Docker image
         env:
           - name: DB_HOST
-            value: rds-cluster.cluster-cxzadf8nmshb.eu-central-1.rds.amazonaws.com
-          - name: DB_NAME
-            value: todo_db
+            valueFrom:
+              secretKeyRef:
+                name: rds-endpoint
+                key: endpoint
           - name: DB_USER
-            value: root
+            valueFrom:
+              secretKeyRef:
+                name: rds-username
+                key: username
           - name: DB_PASSWORD
-            value: password
-            # valueFrom:
-            #   secretKeyRef:
-            #     name: db-credentials
-            #     key: password
+            valueFrom:
+              secretKeyRef:
+                name: rds-password
+                key: password
+          - name: DB_DATABASE
+            value: todo_db
       restartPolicy: Never
   backoffLimit: 4

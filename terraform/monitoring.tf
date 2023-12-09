@@ -7,44 +7,23 @@ variable "kube_monitoring_stack_values" {
       adminUser: admin
       adminPassword: admin
       enabled: true
+      service:
+        type: LoadBalancer
       ingress:
-        enabled: true
-        ingressClassName: nginx
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-production
-        hosts:
-          - grafana.johnydev.com
-        tls:
-          - secretName: grafana-tls
-            hosts:
-              - grafana.johnydev.com
+        enabled: false
 
     alertmanager:
       enabled: true
+      service:
+        type: LoadBalancer
       ingress:
-        enabled: true
-        ingressClassName: nginx
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-production
-        hosts:
-          - alertmanager.johnydev.com
-        tls:
-          - secretName: alertmanager-tls
-            hosts:
-              - alertmanager.johnydev.com
+        enabled: false
 
     prometheus:
       ingress:
-        enabled: true
-        ingressClassName: nginx
-        annotations:
-          cert-manager.io/cluster-issuer: letsencrypt-production
-        hosts:
-          - prometheus.johnydev.com
-        tls:
-          - secretName: prometheus-tls
-            hosts:
-              - prometheus.johnydev.com
+        enabled: false
+      service:
+        type: LoadBalancer
       prometheusSpec:
         replicas: 2
         replicaExternalLabelName: prometheus_replica
