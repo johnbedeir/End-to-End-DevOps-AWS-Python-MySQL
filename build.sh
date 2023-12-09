@@ -4,82 +4,84 @@
 cluster_name="cluster-1-test"
 region="eu-central-1"
 aws_id="702551696126"
-repo_name="todo-list" # If you wanna change the repository name make sure you change it in the k8s/app.yml (Image name) 
-db_repo="todo-db"
-image_name="$aws_id.dkr.ecr.eu-central-1.amazonaws.com/$repo_name:latest"
-db_image_name="$aws_id.dkr.ecr.eu-central-1.amazonaws.com/$db_repo:latest"
-domain="johnydev.com"
+cd terraform 
+app_img=$(terraform output -raw ecr_app_repository_name) 
+db_img=$(terraform output -raw ecr_db_repository_name)
+rds_endpoint=$(terraform output -raw rds_cluster_endpoint)
+db_username=$(terraform output -raw db_username)
+db_password=$(terraform output -raw db_password)
+app_image_name="$aws_id.dkr.ecr.eu-central-1.amazonaws.com/$app_img:latest"
+db_image_name="$aws_id.dkr.ecr.eu-central-1.amazonaws.com/$db_img:latest"
+cd ..
 namespace="todo-app"
+monitoring_ns="monitoring"
+app_service_name="todo-app-service"
+alertmanager_service_name="kube-prometheus-stack-alertmanager"
+prometheus_service_name="kube-prometheus-stack-prometheus"
+grafana_service_name="kube-prometheus-stack-grafana"
 # End Variables
 
 # update helm repos
-# helm repo update
+helm repo update
 
 # create the cluster
 # echo "--------------------Creating EKS--------------------"
 # echo "--------------------Creating ECR--------------------"
 # echo "--------------------Creating EBS--------------------"
-# echo "--------------------Deploying Ingress--------------------"
+# echo "--------------------Creating RDS--------------------"
 # echo "--------------------Deploying Monitoring--------------------"
-# cd terraform && \ 
-# terraform init 
-# terraform apply -auto-approve
-# cd ..
+cd terraform && \
+terraform init 
+terraform apply -auto-approve
+cd ..
 
 # update kubeconfig
 echo "--------------------Update Kubeconfig--------------------"
 aws eks update-kubeconfig --name $cluster_name --region $region
 
-# remove preious docker images
+# # remove preious docker images
 echo "--------------------Remove Previous build--------------------"
-docker rmi -f $image_name || true
+docker rmi -f $app_image_name || true
 docker rmi -f $db_image_name || true
 
-# build new docker image with new tag
+# # # build new docker image with new tag
 echo "--------------------Build new Image--------------------"
-docker build -t $image_name todo-app/
+docker build -t $app_image_name todo-app/
 docker build -f k8s/Dockerfile.mysql -t $db_image_name k8s/
 
-#ECR Login
+# # #ECR Login
 echo "--------------------Login to ECR--------------------"
 aws ecr get-login-password --region $region | docker login --username AWS --password-stdin $aws_id.dkr.ecr.eu-central-1.amazonaws.com
 
-# push the latest build to dockerhub
+# # # push the latest build to dockerhub
 echo "--------------------Pushing Docker Image--------------------"
-docker push $image_name
+docker push $app_image_name
 docker push $db_image_name
 
-# create namespace
+# # create namespace
 echo "--------------------creating Namespace--------------------"
 kubectl create ns $namespace || true
 
-# Deploy the application
+# # add rds endpoint into k8s secrets
+echo "--------------------Create RDS Secrets --------------------"
+kubectl create secret generic rds-endpoint -n $namespace --from-literal=endpoint=$rds_endpoint || true
+kubectl create secret generic rds-username -n $namespace --from-literal=username=$db_username || true
+kubectl create secret generic rds-password -n $namespace --from-literal=password=$db_password || true
+
+# # Deploy the application
 echo "--------------------Deploy App--------------------"
-kubectl apply -n $namespace -f k8s
+kubectl apply -n $namespace -f k8s/
 
-# # Wait for application to be deployed
-# echo "--------------------Wait for all pods to be running--------------------"
-# sleep 60s
+# Wait for application to be deployed
+echo "--------------------Wait for all pods to be running--------------------"
+sleep 60s
 
-# # Get ingress URL
-# echo "--------------------Ingress URL--------------------"
-# kubectl get ingress todo-app-ingress -n $namespace -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
-# echo " "
-# echo " "
-# echo "--------------------Application URL--------------------"
-# echo "http://todo.$domain"
-
-# echo "--------------------Alertmanager URL--------------------"
-# echo "http://alertmanager.$domain"
-# echo " "
-
-# echo "--------------------Prometheus URL--------------------"
-# echo "http://prometheus.$domain"
-# echo " "
-
-# echo "--------------------Grafana URL--------------------"
-# echo "http://grafana.$domain"
-# echo " "
-# echo " "
-
-# echo -e "1. Navigate to your domain cpanel.\n2. Look for Zone Editor.\n3. Add CNAME Record to your domain.\n4. In the name type domain for your application.\n5. In the CNAME Record paste the ingress URL."
+# Get ingress URL
+echo "--------------------Application LoadBalancer URL--------------------"
+kubectl get svc -n ${namespace} ${app_service_name} -o=custom-columns=EXTERNAL-IP:.status.loadBalancer.ingress[*].hostname | tail -n +2
+echo "-------------------- Alertmanager LoadBalancer URL--------------------"
+kubectl get svc -n ${monitoring_ns} ${alertmanager_service_name} -o=custom-columns=EXTERNAL-IP:.status.loadBalancer.ingress[*].hostname | tail -n +2
+echo "--------------------Prometheus LoadBalancer URL--------------------"
+kubectl get svc -n ${monitoring_ns} ${prometheus_service_name} -o=custom-columns=EXTERNAL-IP:.status.loadBalancer.ingress[*].hostname | tail -n +2
+echo "--------------------Grafana LoadBalancer URL--------------------"
+kubectl get svc -n ${monitoring_ns} ${grafana_service_name} -o=custom-columns=EXTERNAL-IP:.status.loadBalancer.ingress[*].hostname | tail -n +2
