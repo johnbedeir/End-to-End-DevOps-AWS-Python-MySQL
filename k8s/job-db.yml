@@ -7,7 +7,7 @@ spec:
     spec:
       containers:
       - name: db-init
-        image: 702551696126.dkr.ecr.eu-central-1.amazonaws.com/todo-db:latest # Replace with your Docker image
+        image: 702551696126.dkr.ecr.eu-central-1.amazonaws.com/todo-db-img:latest # Replace with your Docker image
         env:
           - name: DB_HOST
             valueFrom:

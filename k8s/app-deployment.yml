@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: todo-app
-        image: 702551696126.dkr.ecr.eu-central-1.amazonaws.com/todo-list:latest  # Replace with your Docker image
+        image: 702551696126.dkr.ecr.eu-central-1.amazonaws.com/todo-app-img:latest  # Replace with your Docker image
         ports:
         - containerPort: 5000
         env:
