@@ -19,20 +19,19 @@ spec:
         - containerPort: 5000
         env:
           - name: DB_HOST
-            value: rds-cluster.cluster-cxzadf8nmshb.eu-central-1.rds.amazonaws.com  # Replace with your RDS endpoint
+            valueFrom:
+              secretKeyRef:
+                name: rds-endpoint
+                key: endpoint
           - name: DB_USER
-            value: root
+            valueFrom:
+              secretKeyRef:
+                name: rds-username
+                key: username
           - name: DB_PASSWORD
-            value: password
-          # - name: DB_USER
-          #   valueFrom:
-          #     secretKeyRef:
-          #       name: db-user
-          #       key: username
-          # - name: DB_PASSWORD
-          #   valueFrom:
-          #     secretKeyRef:
-          #       name: db-password
-          #       key: password
+            valueFrom:
+              secretKeyRef:
+                name: rds-password
+                key: password
           - name: DB_DATABASE
             value: todo_db
