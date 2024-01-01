@@ -9,9 +9,9 @@ Before you begin, ensure you have met the following requirements:
 - You have installed Python 3.
 - You have installed MySQL.
 - You have a MySQL server running locally.
-- You have Docker installed (optional for containerized setup).
+- You have Docker installed.
 
-## Running the Application Locally
+## 1. Running the Application Locally
 
 ### Setting Up the Database
 
@@ -24,6 +24,7 @@ Before you begin, ensure you have met the following requirements:
    - DB_PASSWORD: your MySQL password
    - DB_DATABASE: your database name
 
+4. Create a table in the database that will be used by your application
    ```
    CREATE TABLE tasks (
    id SERIAL PRIMARY KEY,
@@ -63,7 +64,7 @@ Before you begin, ensure you have met the following requirements:
 
 5. Access the application at `http://localhost:5000`.
 
-## Running with Docker (Optional)
+## 2. Running with Docker (Optional)
 
 1. Build the Docker image:
 
@@ -79,7 +80,43 @@ Before you begin, ensure you have met the following requirements:
 
 3. Access the application at `http://localhost:5000`.
 
-## Running App and Database with Dockercompose (Optional)
+## 3. Running App and Database with Docker compose (Optional)
+
+To run the application using docker compose:
+
+```
+docker-compose up
+```
+
+This will Run both the application and the database containers and will also create a table in the database using the sql script `init-db.sql`
+
+To take it down run the following command:
+
+```
+docker-compose down
+```
+
+## 4. Build, Deploy and Run the application on AWS EKS and RDS
+
+To build and deploy the application on AWS EKS and RDS execute the following script:
+
+```
+./build.sh
+```
+
+This will build the infrastructure, Deploy Monitoring Tools, and run some commands:
+
+1.  EKS (Kubernetes Cluster)
+2.  ECR (Elastic Container Registry)
+3.  RDS (Relational Database Service)
+4.  VPC, Subnets and Network Configuration
+5.  Monitoring Tools Deployment (Alert Manager, Prometheus, Grafana)
+6.  Build and Push the Dockerfile for the Application and MySQL Kubernetes Job to the ECR
+7.  Create Kubernetes Secrets with the RDS Credentials
+8.  Create Namespace and Deploy the application
+9.  Reveal the LoadBalancer URL for the application, alertmanager, prometheus and grafana
+
+`IMPORTANT: Make sure to update the Variables in the script`
 
 ## Contributing
 
