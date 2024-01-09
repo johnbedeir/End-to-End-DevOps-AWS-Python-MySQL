@@ -90,12 +90,6 @@ variable "db_username" {
 
 }
 
-variable "db_password" {
-  description = "The password for the DB instance"
-  type        = string
-  sensitive   = true
-}
-
 variable "rds_cluster_name" {
   type    = string
   default = "rds-cluster"

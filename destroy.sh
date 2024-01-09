@@ -20,8 +20,8 @@ docker rmi -f $db_image_name || true
 
 # delete Docker-img from ECR
 echo "--------------------Deleting ECR-IMG--------------------"
-aws ecr batch-delete-image --repository-name $app_image_name --image-ids imageTag=latest
-aws ecr batch-delete-image --repository-name $db_image_name --image-ids imageTag=latest
+./ecr-imgs-delete.sh $app_img $region 
+./ecr-imgs-delete.sh $db_img $region 
 
 # Destroy Infrastructure
 # echo "--------------------Destroy Infrastructure--------------------"
@@ -30,12 +30,8 @@ terraform destroy -auto-approve
 
 # Delete rds snapshot
 echo "--------------------Delete Rds Snapshot--------------------"
-aws rds delete-db-snapshot --db-snapshot-identifier $rds_snapshot_name
+aws rds delete-db-cluster-snapshot --db-cluster-snapshot-identifier $rds_snapshot_name --region $region
 
 # Destroy the remaning infrastructure
 echo "--------------------Destroy Remaining Infrastructure--------------------"
 terraform destroy -auto-approve
-
-
-
-

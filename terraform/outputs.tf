@@ -31,7 +31,7 @@ output "db_username" {
 
 output "db_password" {
   sensitive = true
-  value     = var.db_password
+  value     = random_password.password.result
 }
 
 output "final_snapshot_name" {
