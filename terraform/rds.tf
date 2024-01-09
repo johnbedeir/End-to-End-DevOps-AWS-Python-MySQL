@@ -5,7 +5,7 @@ resource "aws_rds_cluster" "rds_cluster" {
   engine_version          = var.rds_engine_version
   database_name           = var.db_name
   master_username         = var.db_username
-  master_password         = var.db_password
+  master_password         = random_password.password.result
   backup_retention_period = 5
   preferred_backup_window = "07:00-09:00"
 
