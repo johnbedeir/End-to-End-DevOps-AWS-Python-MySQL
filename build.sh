@@ -10,8 +10,8 @@ db_img=$(terraform output -raw ecr_db_repository_name)
 rds_endpoint=$(terraform output -raw rds_cluster_endpoint)
 db_username=$(terraform output -raw db_username)
 db_password=$(terraform output -raw db_password)
-app_image_name="$aws_id.dkr.ecr.eu-central-1.amazonaws.com/$app_img:latest"
-db_image_name="$aws_id.dkr.ecr.eu-central-1.amazonaws.com/$db_img:latest"
+app_image_name="$aws_id.dkr.ecr.$region.amazonaws.com/$app_img:latest"
+db_image_name="$aws_id.dkr.ecr.$region.amazonaws.com/$db_img:latest"
 cd ..
 namespace="todo-app"
 monitoring_ns="monitoring"
@@ -46,8 +46,8 @@ docker rmi -f $db_image_name || true
 
 # build new docker image with new tag
 echo "--------------------Build new Image--------------------"
-# docker build -t $app_image_name todo-app/
-docker build -t $db_image_name -f k8s/Dockerfile.mysql k8s
+docker build -t $app_image_name todo-app/
+docker build -f k8s/Dockerfile.mysql -t $db_image_name k8s
 
 # ECR Login
 echo "--------------------Login to ECR--------------------"
