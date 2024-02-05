@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: create-db-tables
+  namespace: todo-app
+spec:
+  template:
+    spec:
+      containers:
+      - name: db-init
+        image: triple3a/todo-db-img:latest
+        env:
+          - name: DB_HOST
+            value: db-service
+          - name: DB_USER
+            value: root
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: db-password
+          - name: DB_DATABASE
+            value: todo_db
+      restartPolicy: Never
+  backoffLimit: 4

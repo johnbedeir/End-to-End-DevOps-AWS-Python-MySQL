@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-app-deployment
+  namespace: todo-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: todo-app
+  template:
+    metadata:
+      labels:
+        app: todo-app
+    spec:
+      containers:
+      - name: todo-app
+        image: triple3a/todo-app-img:latest  # Replace with your Docker image
+        ports:
+        - containerPort: 5000
+        env:
+          - name: DB_HOST
+            value: db-service
+          - name: DB_USER
+            value: root
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef: 
+                name: db-secret
+                key: db-password
+          - name: DB_DATABASE
+            value: todo_db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: todo-app-service
+  namespace: todo-app
+  labels:
+    app: todo-app
+spec:
+  type: NodePort 
+  ports:
+  - port: 5000
+    targetPort: 5000
+  selector:
+    app: todo-app
