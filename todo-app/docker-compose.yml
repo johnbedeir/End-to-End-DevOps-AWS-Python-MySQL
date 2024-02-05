@@ -3,8 +3,6 @@ version: "3.8"
 services:
   app:
     build: .
-    ports:
-      - "5000:5000"
     environment:
       - DB_HOST=db
       - DB_USER=root
@@ -15,6 +13,8 @@ services:
         condition: service_healthy
     networks:
       - app-network
+    ports:
+      - "5000:5000"
 
   db:
     image: mysql:5.7
