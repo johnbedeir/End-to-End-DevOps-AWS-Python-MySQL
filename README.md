@@ -333,5 +333,5 @@ aws rds delete-db-cluster-snapshot --db-cluster-snapshot-identifier $rds_snapsho
 It is essential to verify that the script has completed successfully to ensure that all resources have been cleaned up and no unexpected costs are incurred.
 
 ```
-Make sure to replace URLs, database configuration details, and any other specific instructions to fit your project. This README provides a basic guideline for users to set up and run your application both locally, with Docker, with Docker Compose and also over EKS and RDS.
+Make sure to replace URLs, database configuration details, and any other specific instructions to fit your project. This README provides a basic guideline for users to set up and run your application both locally, with Docker, with Docker Compose, minikube and also over EKS and RDS.
 ```
