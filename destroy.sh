@@ -2,8 +2,8 @@
 
 # Variables
 cluster_name="cluster-1-test"
-region="eu-central-1"
-aws_id="702551696126"
+region="REGION"
+aws_id="AWS_ID"
 cd terraform 
 app_img=$(terraform output -raw ecr_app_repository_name) 
 db_img=$(terraform output -raw ecr_db_repository_name)
